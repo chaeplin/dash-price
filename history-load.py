@@ -5,7 +5,7 @@ import json
 import socket
 import re
 import nanotime
-from time import time
+from time import time, sleep
 from pprint import pprint
 
 def sendUdpmsg(msgtosend):
@@ -27,8 +27,8 @@ def getload():
     
     for x in data:
         payload = "pricehistory,mainnet=true dash=" + str(x['weightedAverage']) + " " + str(x['date']*1000000000)
-        #print(payload)
         sendUdpmsg(payload)
+        sleep(0.0001)
 
 try:
     getload()
