@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import socket
 import sys
-import datetime
-import json
+import simplejson as json
+import redis
 import socket
 import re
-from time import time, sleep
+from datetime import datetime
+import time
 from bs4 import BeautifulSoup
 import socket
 import urllib.request as urlopen
@@ -23,8 +26,16 @@ from ISStreamer.Streamer import Streamer
 
 USERAGET = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0.1 Safari/602.2.14'
 
+key_prefix = 'TICKER:'
+r_SS_BTC_PRICE = key_prefix + 'ss_btc_price'
+r_HA_BTC_PRICE = key_prefix + 'ha_btc_price'
+
+# redis
+POOL = redis.ConnectionPool(host='localhost', port=6379, db=0)
+r = redis.StrictRedis(connection_pool=POOL)
+
 def get_bitfinex():
-    start_time = time()
+    start_time = time.time()
     url = 'https://api.bitfinex.com/v1/pubticker/BTCUSD'
     request  = urlopen.Request(url)
     request.add_header('User-agent', USERAGET)
@@ -36,7 +47,7 @@ def get_bitfinex():
         response = urlopen.urlopen(request, timeout=2)
         r = json.loads(response.read().decode('utf-8'))
 #        print(json.dumps(r, sort_keys=True, indent=4, separators=(',', ': ')))
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
         if r and 'last_price' in r:
@@ -47,14 +58,14 @@ def get_bitfinex():
         return rawjson
 
     except Exception as e:
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
         print(e.args[0])
         return rawjson
 
 
 def get_gdax():
-    start_time = time()
+    start_time = time.time()
     url = 'https://api.gdax.com/products/BTC-USD/ticker'
     request  = urlopen.Request(url)
     request.add_header('User-agent', USERAGET)
@@ -66,7 +77,7 @@ def get_gdax():
         response = urlopen.urlopen(request, timeout=2)
         r = json.loads(response.read().decode('utf-8'))
 #        print(json.dumps(r, sort_keys=True, indent=4, separators=(',', ': ')))
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
         if r and 'price' in r:
@@ -77,14 +88,14 @@ def get_gdax():
         return rawjson
 
     except Exception as e:
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
         print(e.args[0])
         return rawjson
 
 
 def get_btce():
-    start_time = time()
+    start_time = time.time()
     url = 'https://btc-e.com/api/3/ticker/btc_usd'
     request  = urlopen.Request(url)
     request.add_header('User-agent', USERAGET)
@@ -96,7 +107,7 @@ def get_btce():
         response = urlopen.urlopen(request, timeout=2)
         r = json.loads(response.read().decode('utf-8'))
 #        print(json.dumps(r, sort_keys=True, indent=4, separators=(',', ': ')))
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
         if r and 'last' in r['btc_usd']:
@@ -107,14 +118,14 @@ def get_btce():
         return rawjson
 
     except Exception as e:
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
         print(e.args[0])
         return rawjson
 
 
 def get_xbtce():
-    start_time = time()
+    start_time = time.time()
     url = 'https://cryptottlivewebapi.xbtce.net:8443/api/v1/public/ticker/BTCUSD'
     request  = urlopen.Request(url)
     request.add_header('User-agent', USERAGET)
@@ -127,7 +138,7 @@ def get_xbtce():
         response = urlopen.urlopen(request, timeout=2)
         r = json.loads(gzip.decompress(response.read()).decode('utf-8'))[0]
 #        print(json.dumps(r, sort_keys=True, indent=4, separators=(',', ': ')))
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
         if r and 'Symbol' in r:
@@ -139,14 +150,14 @@ def get_xbtce():
         return rawjson
 
     except Exception as e:
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
         print(e.args[0])
         return rawjson
 
 
 def get_bitstamp():
-    start_time = time()
+    start_time = time.time()
     url = 'https://www.bitstamp.net/api/v2/ticker_hour/btcusd/'
     request  = urlopen.Request(url)
     request.add_header('User-agent', USERAGET)
@@ -158,7 +169,7 @@ def get_bitstamp():
         response = urlopen.urlopen(request, timeout=2)
         r = json.loads(response.read().decode('utf-8'))
 #        print(json.dumps(r, sort_keys=True, indent=4, separators=(',', ': ')))
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
         if r and 'last' in r:
@@ -169,13 +180,13 @@ def get_bitstamp():
         return rawjson
 
     except Exception as e:
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
         print(e.args[0])
         return rawjson
 
 def get_okcoin():
-    start_time = time()
+    start_time = time.time()
     url = 'https://www.okcoin.com/api/v1/ticker.do?symbol=btc_usd'
     request  = urlopen.Request(url)
     request.add_header('User-agent', USERAGET)
@@ -187,7 +198,7 @@ def get_okcoin():
         response = urlopen.urlopen(request, timeout=2)
         r = json.loads(response.read().decode('utf-8'))
 #        print(json.dumps(r, sort_keys=True, indent=4, separators=(',', ': ')))
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
         if r and 'ticker' in r:
@@ -198,7 +209,7 @@ def get_okcoin():
         return rawjson
 
     except Exception as e:
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
         print(e.args[0])
         return rawjson
@@ -206,6 +217,8 @@ def get_okcoin():
 
 # main
 btcusd = {}
+now = datetime.now()
+epoch00 = int(time.mktime(now.timetuple())) - now.second
 
 try:
     bitfinex = get_bitfinex()
@@ -237,11 +250,22 @@ try:
         l_btcusd.append(btcusd[key])
 
     btcusd['avg'] = round(mean(sorted(l_btcusd)[1:-1]), 2)
+    btcusd['tstamp'] = epoch00    
 
-    streamer = Streamer(bucket_name='ticker', bucket_key='xxxx', access_key='xxxx', buffer_size=50)
-    streamer.log_object_no_ub(btcusd, key_prefix="btcusd_")
+    # redis
+    pipe = r.pipeline()
+    pipe.hmset(r_HA_BTC_PRICE, btcusd)
+    pipe.zadd(r_SS_BTC_PRICE, epoch00, str(epoch00) + ':' + str(btcusd['avg']))
+    response = pipe.execute()
+
+    # ISS
+    streamer = Streamer(bucket_name='ticker', bucket_key='5YS94TRX3T7V', access_key='4V4zdLdXD1wA7P2gZ8AatkIiouP6WK77', buffer_size=50)
+    streamer.log_object_no_ub(btcusd, key_prefix="btcusd_", epoch=epoch00)
     streamer.close()
 
 except Exception as e:
     print(e.args[0])
+
+except KeyboardInterrupt:
+    sys.exit()
 

@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import socket
 import sys
-import datetime
-import json
+import simplejson as json
+import redis
 import socket
 import re
-from time import time, sleep
+from datetime import datetime
+import time
 from bs4 import BeautifulSoup
 import socket
 import urllib.request as urlopen
@@ -23,8 +26,18 @@ from ISStreamer.Streamer import Streamer
 
 USERAGET = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0.1 Safari/602.2.14'
 
+key_prefix = 'TICKER:'
+r_SS_DASH_BTC_PRICE = key_prefix + 'ss_dash_btc_price'
+r_SS_DASH_USD_PRICE = key_prefix + 'ss_dash_usd_price'
+r_HA_DASH_BTC_PRICE = key_prefix + 'ha_dash_btc_price'
+r_HA_DASH_USD_PRICE = key_prefix + 'ha_dash_usd_price'
+
+# redis
+POOL = redis.ConnectionPool(host='localhost', port=6379, db=0)
+r = redis.StrictRedis(connection_pool=POOL)
+
 def get_poloniex():
-    start_time = time()
+    start_time = time.time()
     url = 'https://poloniex.com/public?command=returnTicker'
     request  = urlopen.Request(url)
     request.add_header('User-agent', USERAGET)
@@ -36,7 +49,7 @@ def get_poloniex():
     try:
         response = urlopen.urlopen(request, timeout=2)
         r = json.loads(response.read().decode('utf-8'))
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
         if r and 'BTC_DASH' in r and 'USDT_DASH' in r:
@@ -49,13 +62,13 @@ def get_poloniex():
                 return rawjson
 
     except Exception as e:
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
         print(e.args[0])
         return None
 
 def get_exmo():
-    start_time = time()
+    start_time = time.time()
     url = 'https://api.exmo.com/v1/ticker/'
     request  = urlopen.Request(url)
     request.add_header('User-agent', USERAGET)
@@ -67,7 +80,7 @@ def get_exmo():
     try:
         response = urlopen.urlopen(request, timeout=2)
         r = json.loads(response.read().decode('utf-8'))
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
         if r and 'last_trade' in r['DASH_BTC'] and 'last_trade' in r['DASH_USD']:
@@ -80,13 +93,13 @@ def get_exmo():
                 return rawjson
 
     except Exception as e:
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
         print(e.args[0])
         return None
 
 def get_bittrex():
-    start_time = time()
+    start_time = time.time()
     url = 'https://bittrex.com/api/v1.1/public/getticker?market=btc-dash'
     request  = urlopen.Request(url)
     request.add_header('User-agent', USERAGET)
@@ -97,7 +110,7 @@ def get_bittrex():
     try:
         response = urlopen.urlopen(request, timeout=2)
         r = json.loads(response.read().decode('utf-8'))
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
         if r and 'success' in r:
@@ -109,14 +122,14 @@ def get_bittrex():
                     return rawjson
 
     except Exception as e:
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
         print(e.args[0])
         return None
 
 
 def get_btcebtc():
-    start_time = time()
+    start_time = time.time()
     url = 'https://btc-e.com/api/3/ticker/dsh_btc'
     request  = urlopen.Request(url)
     request.add_header('User-agent', USERAGET)
@@ -127,7 +140,7 @@ def get_btcebtc():
     try:
         response = urlopen.urlopen(request, timeout=2)
         r = json.loads(response.read().decode('utf-8'))
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
         
         if r and 'dsh_btc' in r:
@@ -138,14 +151,14 @@ def get_btcebtc():
                 return rawjson
 
     except Exception as e:
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
         print(e.args[0])
         return None
 
 
 def get_btceusd():
-    start_time = time()
+    start_time = time.time()
     url = 'https://btc-e.com/api/3/ticker/dsh_usd'
     request  = urlopen.Request(url)
     request.add_header('User-agent', USERAGET)
@@ -156,7 +169,7 @@ def get_btceusd():
     try:
         response = urlopen.urlopen(request, timeout=2)
         r = json.loads(response.read().decode('utf-8'))
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
         
         if r and 'dsh_usd' in r:
@@ -167,13 +180,13 @@ def get_btceusd():
                 return rawjson
 
     except Exception as e:
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
         print(e.args[0])
         return None
 
 def get_xbtcebtc():
-    start_time = time()
+    start_time = time.time()
     url = 'https://cryptottlivewebapi.xbtce.net:8443/api/v1/public/ticker/DSHBTC'
     request  = urlopen.Request(url)
     request.add_header('User-agent', USERAGET)
@@ -185,7 +198,7 @@ def get_xbtcebtc():
     try:
         response = urlopen.urlopen(request, timeout=2)
         r = json.loads(gzip.decompress(response.read()).decode('utf-8'))[0]
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
         if r and 'Symbol' in r:
@@ -197,13 +210,13 @@ def get_xbtcebtc():
                     return rawjson
 
     except Exception as e:
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
         print(e.args[0])
         return None
 
 def get_xbtceusd():
-    start_time = time()
+    start_time = time.time()
     url = 'https://cryptottlivewebapi.xbtce.net:8443/api/v1/public/ticker/DSHUSD'
     request  = urlopen.Request(url)
     request.add_header('User-agent', USERAGET)
@@ -215,7 +228,7 @@ def get_xbtceusd():
     try:
         response = urlopen.urlopen(request, timeout=2)
         r = json.loads(gzip.decompress(response.read()).decode('utf-8'))[0]
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
         if r and 'Symbol' in r:
@@ -227,13 +240,13 @@ def get_xbtceusd():
                     return rawjson
 
     except Exception as e:
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
         print(e.args[0])
         return None
 
 def get_yobit():
-    start_time = time()
+    start_time = time.time()
     url = 'https://yobit.net/api/2/dash_btc/ticker'
     request  = urlopen.Request(url)
     request.add_header('User-agent', USERAGET)
@@ -244,7 +257,7 @@ def get_yobit():
     try:
         response = urlopen.urlopen(request, timeout=2)
         r = json.loads(response.read().decode('utf-8'))
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
         if r and 'ticker' in r:
@@ -255,7 +268,7 @@ def get_yobit():
                 return rawjson
 
     except Exception as e:
-        stop_time = time()
+        stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
         print(e.args[0])
         return None
@@ -264,6 +277,8 @@ def get_yobit():
 # main
 dashbtc = {}
 dashusd = {}
+now = datetime.now()
+epoch00 = int(time.mktime(now.timetuple())) - now.second
 
 try:
 
@@ -313,9 +328,20 @@ try:
     dashbtc['avg'] = round(mean(sorted(l_dashbtc)[1:-1]), 5)
     dashusd['avg'] = round(mean(sorted(l_dashusd)[1:-1]), 2)
 
-    streamer = Streamer(bucket_name='ticker', bucket_key='xxx', access_key='xxx', buffer_size=50)
-    streamer.log_object_no_ub(dashbtc, key_prefix="dashbtc_")
-    streamer.log_object_no_ub(dashusd, key_prefix="dashusd_")
+    dashbtc['tstamp'] = dashusd['tstamp'] = epoch00
+
+    # redis
+    pipe = r.pipeline()
+    pipe.hmset(r_HA_DASH_BTC_PRICE, dashbtc)
+    pipe.hmset(r_HA_DASH_USD_PRICE, dashusd)
+    pipe.zadd(r_SS_DASH_BTC_PRICE, epoch00, str(epoch00) + ':' + str(dashbtc['avg']))
+    pipe.zadd(r_SS_DASH_USD_PRICE, epoch00, str(epoch00) + ':' + str(dashusd['avg']))
+    response = pipe.execute()
+
+    # ISS
+    streamer = Streamer(bucket_name='ticker', bucket_key='5YS94TRX3T7V', access_key='4V4zdLdXD1wA7P2gZ8AatkIiouP6WK77', buffer_size=50)
+    streamer.log_object_no_ub(dashbtc, key_prefix="dashbtc_", epoch=epoch00)
+    streamer.log_object_no_ub(dashusd, key_prefix="dashusd_", epoch=epoch00)
     streamer.close()
 
 except Exception as e:
@@ -324,5 +350,4 @@ except Exception as e:
 
 except KeyboardInterrupt:
     sys.exit()
-
 
