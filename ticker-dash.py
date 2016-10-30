@@ -11,6 +11,7 @@ import socket
 import urllib.request as urlopen
 import gzip
 from statistics import mean
+from ISStreamer.Streamer import Streamer
 
 #   https://poloniex.com/public?command=returnTicker
 #   https://api.exmo.com/v1/ticker/
@@ -219,7 +220,7 @@ def get_xbtceusd():
 
         if r and 'Symbol' in r:
             if r['Symbol'] == 'DSHUSD':
-                valbtc = round(float(r['BestBid']), 5)
+                valbtc = round(float(r['BestBid']), 2)
                 if valbtc > 0:
                     rawjson['vusd'] = valbtc
 
@@ -267,52 +268,55 @@ dashusd = {}
 try:
 
     poloniex = get_poloniex()
-
-    if len(poloniex) > 1:
+    if poloniex['vbtc'] > 0 and poloniex['vusd'] > 0:
         dashbtc['poloniex'] = poloniex['vbtc']
         dashusd['poloniex'] = poloniex['vusd']
 
     exmo = get_exmo()
-    if len(exmo) > 1:
+    if exmo['vbtc'] > 0 and exmo['vusd'] > 0:
         dashbtc['exmo'] = exmo['vbtc']
         dashusd['exmo'] = exmo['vusd']
 
     bittrex = get_bittrex()
-    if len(bittrex) > 1:
+    if bittrex['vbtc'] > 0:
         dashbtc['bittrex'] = bittrex['vbtc']
 
 
     btcebtc = get_btcebtc() 
-    if len(btcebtc) > 1:
+    if btcebtc['vbtc'] > 0:
         dashbtc['btce'] = btcebtc['vbtc']
 
     btceusd = get_btceusd()
-    if len(btceusd) > 1:
+    if btceusd['vusd'] > 0:
         dashusd['btce'] = btceusd['vusd']
 
     xbtcebtc = get_xbtcebtc()
-    if len(xbtcebtc) > 1:
+    if xbtcebtc['vbtc'] > 0:
         dashbtc['xbtce'] = xbtcebtc['vbtc']
 
     xbtceusd = get_xbtceusd()
-    if len(xbtceusd) > 1:
+    if xbtceusd['vusd'] > 0:
         dashusd['xbtce'] = xbtceusd['vusd']
 
     yobit = get_yobit()
-    if len(yobit) > 1:
+    if yobit['vbtc'] > 0:
         dashbtc['yobit'] = yobit['vbtc']
 
     l_dashbtc = []
     for key in dashbtc:
         l_dashbtc.append(dashbtc[key])
 
-    print(round(mean(sorted(l_dashbtc)[1:-1]), 5))
-
     l_dashusd = []
     for key in dashusd:
         l_dashusd.append(dashusd[key])
 
-    print(round(mean(sorted(l_dashusd)[1:-1]), 2))
+    dashbtc['avg'] = round(mean(sorted(l_dashbtc)[1:-1]), 5)
+    dashusd['avg'] = round(mean(sorted(l_dashusd)[1:-1]), 2)
+
+    streamer = Streamer(bucket_name='ticker', bucket_key='xxx', access_key='xxx', buffer_size=50)
+    streamer.log_object_no_ub(dashbtc, key_prefix="dashbtc_")
+    streamer.log_object_no_ub(dashusd, key_prefix="dashusd_")
+    streamer.close()
 
 except Exception as e:
     print(e.args[0])
@@ -320,3 +324,5 @@ except Exception as e:
 
 except KeyboardInterrupt:
     sys.exit()
+
+

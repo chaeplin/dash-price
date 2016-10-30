@@ -11,13 +11,14 @@ import socket
 import urllib.request as urlopen
 import gzip
 from statistics import mean
+from ISStreamer.Streamer import Streamer
 
-#	https://api.bitfinex.com/v1/pubticker/BTCUSD
-#	https://api.gdax.com/products/BTC-USD/ticker
-#	https://btc-e.com/api/3/ticker/btc_usd
-#	https://cryptottlivewebapi.xbtce.net:8443/api/v1/public/ticker/BTCUSD
-#	https://www.bitstamp.net/api/v2/ticker_hour/btcusd/
-#	https://www.okcoin.com/api/v1/ticker.do?symbol=btc_usd
+#   https://api.bitfinex.com/v1/pubticker/BTCUSD
+#   https://api.gdax.com/products/BTC-USD/ticker
+#   https://btc-e.com/api/3/ticker/btc_usd
+#   https://cryptottlivewebapi.xbtce.net:8443/api/v1/public/ticker/BTCUSD
+#   https://www.bitstamp.net/api/v2/ticker_hour/btcusd/
+#   https://www.okcoin.com/api/v1/ticker.do?symbol=btc_usd
 
 
 USERAGET = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0.1 Safari/602.2.14'
@@ -208,34 +209,38 @@ btcusd = {}
 
 try:
     bitfinex = get_bitfinex()
-    if len(bitfinex) > 1:
+    if  bitfinex['vusd'] > 0:
         btcusd['bitfinex'] = bitfinex['vusd']
 
     gdax = get_gdax()
-    if len(gdax) > 1:
+    if gdax['vusd'] > 0:
         btcusd['gdax'] = gdax['vusd']
 
     btce = get_btce()
-    if len(btce) > 1:
+    if btce['vusd'] > 0:
         btcusd['btce'] = btce['vusd']
 
     xbtce = get_xbtce()
-    if len(xbtce) > 1:
+    if xbtce['vusd'] > 0:
         btcusd['xbtce'] = xbtce['vusd']
 
     bitstamp = get_bitstamp()
-    if len(bitstamp) > 1:
+    if bitstamp['vusd'] > 0:
         btcusd['bitstamp'] = bitstamp['vusd']
 
     okcoin = get_okcoin()
-    if len(okcoin) > 1:
+    if okcoin['vusd'] > 0:
         btcusd['okcoin'] = okcoin['vusd']
 
     l_btcusd = []
     for key in btcusd:
         l_btcusd.append(btcusd[key])
 
-    print(round(mean(sorted(l_btcusd)[1:-1]), 2))
+    btcusd['avg'] = round(mean(sorted(l_btcusd)[1:-1]), 2)
+
+    streamer = Streamer(bucket_name='ticker', bucket_key='xxxx', access_key='xxxx', buffer_size=50)
+    streamer.log_object_no_ub(btcusd, key_prefix="btcusd_")
+    streamer.close()
 
 except Exception as e:
     print(e.args[0])
