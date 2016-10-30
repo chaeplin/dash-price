@@ -102,6 +102,7 @@ def getcryptowatch():
         return None
 
 def getcoincapio():
+    return None
     url = "http://www.coincap.io/page/DASH"
     request  = urlopen.Request(url)
     request.add_header('User-agent', USERAGET)
@@ -174,4 +175,3 @@ try:
 
 except Exception as e:
     print(e.args[0])
-
