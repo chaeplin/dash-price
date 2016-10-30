@@ -222,27 +222,27 @@ epoch00 = int(time.mktime(now.timetuple())) - now.second
 
 try:
     bitfinex = get_bitfinex()
-    if  bitfinex['vusd'] > 0:
+    if bitfinex and bitfinex['vusd'] > 0:
         btcusd['bitfinex'] = bitfinex['vusd']
 
     gdax = get_gdax()
-    if gdax['vusd'] > 0:
+    if gdax and gdax['vusd'] > 0:
         btcusd['gdax'] = gdax['vusd']
 
     btce = get_btce()
-    if btce['vusd'] > 0:
+    if btce and btce['vusd'] > 0:
         btcusd['btce'] = btce['vusd']
 
     xbtce = get_xbtce()
-    if xbtce['vusd'] > 0:
+    if xbtce and xbtce['vusd'] > 0:
         btcusd['xbtce'] = xbtce['vusd']
 
     bitstamp = get_bitstamp()
-    if bitstamp['vusd'] > 0:
+    if bitstamp and bitstamp['vusd'] > 0:
         btcusd['bitstamp'] = bitstamp['vusd']
 
     okcoin = get_okcoin()
-    if okcoin['vusd'] > 0:
+    if okcoin and okcoin['vusd'] > 0:
         btcusd['okcoin'] = okcoin['vusd']
 
     l_btcusd = []
@@ -254,7 +254,7 @@ try:
 
     # redis
     pipe = r.pipeline()
-    pipe.hmset(r_HA_BTC_PRICE, btcusd)
+    pipe.hset(r_HA_BTC_PRICE, epoch00, btcusd)
     pipe.zadd(r_SS_BTC_PRICE, epoch00, str(epoch00) + ':' + str(btcusd['avg']))
     response = pipe.execute()
 

@@ -283,38 +283,37 @@ epoch00 = int(time.mktime(now.timetuple())) - now.second
 try:
 
     poloniex = get_poloniex()
-    if poloniex['vbtc'] > 0 and poloniex['vusd'] > 0:
+    if poloniex and poloniex['vbtc'] > 0 and poloniex['vusd'] > 0:
         dashbtc['poloniex'] = poloniex['vbtc']
         dashusd['poloniex'] = poloniex['vusd']
 
     exmo = get_exmo()
-    if exmo['vbtc'] > 0 and exmo['vusd'] > 0:
+    if exmo and exmo['vbtc'] > 0 and exmo['vusd'] > 0:
         dashbtc['exmo'] = exmo['vbtc']
         dashusd['exmo'] = exmo['vusd']
 
     bittrex = get_bittrex()
-    if bittrex['vbtc'] > 0:
+    if bittrex and bittrex['vbtc'] > 0:
         dashbtc['bittrex'] = bittrex['vbtc']
 
-
     btcebtc = get_btcebtc() 
-    if btcebtc['vbtc'] > 0:
+    if btcebtc and btcebtc['vbtc'] > 0:
         dashbtc['btce'] = btcebtc['vbtc']
 
     btceusd = get_btceusd()
-    if btceusd['vusd'] > 0:
+    if btceusd and btceusd['vusd'] > 0:
         dashusd['btce'] = btceusd['vusd']
 
     xbtcebtc = get_xbtcebtc()
-    if xbtcebtc['vbtc'] > 0:
+    if xbtcebtc and xbtcebtc['vbtc'] > 0:
         dashbtc['xbtce'] = xbtcebtc['vbtc']
 
     xbtceusd = get_xbtceusd()
-    if xbtceusd['vusd'] > 0:
+    if xbtceusd and xbtceusd['vusd'] > 0:
         dashusd['xbtce'] = xbtceusd['vusd']
 
     yobit = get_yobit()
-    if yobit['vbtc'] > 0:
+    if yobit and yobit['vbtc'] > 0:
         dashbtc['yobit'] = yobit['vbtc']
 
     l_dashbtc = []
@@ -332,8 +331,8 @@ try:
 
     # redis
     pipe = r.pipeline()
-    pipe.hmset(r_HA_DASH_BTC_PRICE, dashbtc)
-    pipe.hmset(r_HA_DASH_USD_PRICE, dashusd)
+    pipe.hset(r_HA_DASH_BTC_PRICE, epoch00, dashbtc)
+    pipe.hset(r_HA_DASH_USD_PRICE, epoch00, dashusd)
     pipe.zadd(r_SS_DASH_BTC_PRICE, epoch00, str(epoch00) + ':' + str(dashbtc['avg']))
     pipe.zadd(r_SS_DASH_USD_PRICE, epoch00, str(epoch00) + ':' + str(dashusd['avg']))
     response = pipe.execute()
