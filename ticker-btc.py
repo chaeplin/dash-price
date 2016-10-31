@@ -255,7 +255,7 @@ try:
     # redis
     pipe = r.pipeline()
     pipe.zadd(r_SS_BTC_PRICE, epoch00, str(epoch00) + ':' + str(btcusd['avg']))
-    pipe.set(r_KEY_BTC_PRICE, btcusd)
+    pipe.set(r_KEY_BTC_PRICE, json.dumps(btcusd))
     response = pipe.execute()
 
     # ISS

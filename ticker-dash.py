@@ -333,8 +333,8 @@ try:
 
     # redis
     pipe = r.pipeline()
-    pipe.set(r_KEY_DASH_BTC_PRICE, dashbtc)
-    pipe.set(r_KEY_DASH_USD_PRICE, dashusd)
+    pipe.set(r_KEY_DASH_BTC_PRICE, json.dumps(dashbtc))
+    pipe.set(r_KEY_DASH_USD_PRICE, json.dumps(dashusd))
     pipe.zadd(r_SS_DASH_BTC_PRICE, epoch00, str(epoch00) + ':' + str(dashbtc['avg']))
     pipe.zadd(r_SS_DASH_USD_PRICE, epoch00, str(epoch00) + ':' + str(dashusd['avg']))
     response = pipe.execute()

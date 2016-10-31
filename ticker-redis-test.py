@@ -49,6 +49,10 @@ try:
     pp.pprint(r.zrange(r_SS_BTC_PRICE, 0, -1, withscores=True))
 
     print('r_KEY_BTC_PRICE')
+    x = json.loads(r.get(r_KEY_BTC_PRICE))
+
+    print(x)
+    
     pp.pprint(r.get(r_KEY_BTC_PRICE))
 
 except Exception as e:
@@ -57,28 +61,4 @@ except Exception as e:
 
 except KeyboardInterrupt:
     sys.exit(1)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
