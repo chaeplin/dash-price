@@ -27,8 +27,8 @@ from ISStreamer.Streamer import Streamer
 USERAGET = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0.1 Safari/602.2.14'
 
 key_prefix = 'TICKER:'
-r_SS_BTC_PRICE = key_prefix + 'ss_btc_price'
-r_HA_BTC_PRICE = key_prefix + 'ha_btc_price'
+r_SS_BTC_PRICE  = key_prefix + 'ss_btc_price'
+r_KEY_BTC_PRICE = key_prefix + 'key_btc_price'
 
 # redis
 POOL = redis.ConnectionPool(host='localhost', port=6379, db=0)
@@ -254,8 +254,8 @@ try:
 
     # redis
     pipe = r.pipeline()
-    pipe.hset(r_HA_BTC_PRICE, epoch00, btcusd)
     pipe.zadd(r_SS_BTC_PRICE, epoch00, str(epoch00) + ':' + str(btcusd['avg']))
+    pipe.set(r_KEY_BTC_PRICE, btcusd)
     response = pipe.execute()
 
     # ISS

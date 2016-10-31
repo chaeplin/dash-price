@@ -29,8 +29,10 @@ USERAGET = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/602.2.14
 key_prefix = 'TICKER:'
 r_SS_DASH_BTC_PRICE = key_prefix + 'ss_dash_btc_price'
 r_SS_DASH_USD_PRICE = key_prefix + 'ss_dash_usd_price'
-r_HA_DASH_BTC_PRICE = key_prefix + 'ha_dash_btc_price'
-r_HA_DASH_USD_PRICE = key_prefix + 'ha_dash_usd_price'
+
+r_KEY_DASH_BTC_PRICE = key_prefix + 'key_dash_btc_price'
+r_KEY_DASH_USD_PRICE = key_prefix + 'key_dash_usd_price'
+
 
 # redis
 POOL = redis.ConnectionPool(host='localhost', port=6379, db=0)
@@ -331,8 +333,8 @@ try:
 
     # redis
     pipe = r.pipeline()
-    pipe.hset(r_HA_DASH_BTC_PRICE, epoch00, dashbtc)
-    pipe.hset(r_HA_DASH_USD_PRICE, epoch00, dashusd)
+    pipe.set(r_KEY_DASH_BTC_PRICE, dashbtc)
+    pipe.set(r_KEY_DASH_USD_PRICE, dashusd)
     pipe.zadd(r_SS_DASH_BTC_PRICE, epoch00, str(epoch00) + ':' + str(dashbtc['avg']))
     pipe.zadd(r_SS_DASH_USD_PRICE, epoch00, str(epoch00) + ':' + str(dashusd['avg']))
     response = pipe.execute()
