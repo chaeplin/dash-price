@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+ #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import socket
@@ -12,6 +12,7 @@ import time
 from bs4 import BeautifulSoup
 import socket
 import urllib.request as urlopen
+import urllib.error
 import gzip
 from statistics import mean
 from ISStreamer.Streamer import Streamer
@@ -50,6 +51,26 @@ def get_poloniex():
 
     try:
         response = urlopen.urlopen(request, timeout=2)
+
+    except urllib.error.HTTPError as e:
+        print('poloniex: ' + str(e.code))
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except urllib.error.URLError as e:
+        print('poloniex: URLError')
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except Exception as e:
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        print('poloniex: ' + e.args[0])
+        return rawjson
+
+    else:
         r = json.loads(response.read().decode('utf-8'))
         stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
@@ -63,12 +84,6 @@ def get_poloniex():
 
                 return rawjson
 
-    except Exception as e:
-        stop_time = time.time()
-        rawjson['t']  = round((stop_time - start_time), 3)
-        print(e.args[0])
-        return None
-
 def get_exmo():
     start_time = time.time()
     url = 'https://api.exmo.com/v1/ticker/'
@@ -81,6 +96,27 @@ def get_exmo():
 
     try:
         response = urlopen.urlopen(request, timeout=2)
+
+
+    except urllib.error.HTTPError as e:
+        print('exmo: ' + str(e.code))
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except urllib.error.URLError as e:
+        print('exmo: URLError')
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except Exception as e:
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        print('exmo: ' + e.args[0])
+        return rawjson
+
+    else:
         r = json.loads(response.read().decode('utf-8'))
         stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
@@ -94,12 +130,6 @@ def get_exmo():
 
                 return rawjson
 
-    except Exception as e:
-        stop_time = time.time()
-        rawjson['t']  = round((stop_time - start_time), 3)
-        print(e.args[0])
-        return None
-
 def get_bittrex():
     start_time = time.time()
     url = 'https://bittrex.com/api/v1.1/public/getticker?market=btc-dash'
@@ -111,6 +141,26 @@ def get_bittrex():
 
     try:
         response = urlopen.urlopen(request, timeout=2)
+
+    except urllib.error.HTTPError as e:
+        print('bittrex: ' + str(e.code))
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except urllib.error.URLError as e:
+        print('bittrex: URLError')
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except Exception as e:
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        print('bittrex: ' + e.args[0])
+        return rawjson
+
+    else:
         r = json.loads(response.read().decode('utf-8'))
         stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
@@ -123,13 +173,6 @@ def get_bittrex():
 
                     return rawjson
 
-    except Exception as e:
-        stop_time = time.time()
-        rawjson['t']  = round((stop_time - start_time), 3)
-        print(e.args[0])
-        return None
-
-
 def get_btcebtc():
     start_time = time.time()
     url = 'https://btc-e.com/api/3/ticker/dsh_btc'
@@ -141,6 +184,27 @@ def get_btcebtc():
 
     try:
         response = urlopen.urlopen(request, timeout=2)
+
+    except urllib.error.HTTPError as e:
+        print('btcebtc: ' + str(e.code))
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except urllib.error.URLError as e:
+        print('btcebtc: URLError')
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except Exception as e:
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        print('btcebtc: ' + e.args[0])
+        return rawjson
+
+    else:
+
         r = json.loads(response.read().decode('utf-8'))
         stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
@@ -151,13 +215,6 @@ def get_btcebtc():
                 rawjson['vbtc'] = valbtc
 
                 return rawjson
-
-    except Exception as e:
-        stop_time = time.time()
-        rawjson['t']  = round((stop_time - start_time), 3)
-        print(e.args[0])
-        return None
-
 
 def get_btceusd():
     start_time = time.time()
@@ -170,6 +227,26 @@ def get_btceusd():
 
     try:
         response = urlopen.urlopen(request, timeout=2)
+
+    except urllib.error.HTTPError as e:
+        print('btceusd: ' + str(e.code))
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except urllib.error.URLError as e:
+        print('btceusd: URLError')
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except Exception as e:
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        print('btceusd: ' + e.args[0])
+        return rawjson
+
+    else:
         r = json.loads(response.read().decode('utf-8'))
         stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
@@ -180,12 +257,6 @@ def get_btceusd():
                 rawjson['vusd'] = valbtc
 
                 return rawjson
-
-    except Exception as e:
-        stop_time = time.time()
-        rawjson['t']  = round((stop_time - start_time), 3)
-        print(e.args[0])
-        return None
 
 def get_xbtcebtc():
     start_time = time.time()
@@ -199,6 +270,26 @@ def get_xbtcebtc():
 
     try:
         response = urlopen.urlopen(request, timeout=2)
+
+    except urllib.error.HTTPError as e:
+        print('xbtcebtc: ' + str(e.code))
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except urllib.error.URLError as e:
+        print('xbtcebtc: URLError')
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except Exception as e:
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        print('xbtcebtc: ' + e.args[0])
+        return rawjson
+
+    else:
         r = json.loads(gzip.decompress(response.read()).decode('utf-8'))[0]
         stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
@@ -210,12 +301,6 @@ def get_xbtcebtc():
                     rawjson['vbtc'] = valbtc
 
                     return rawjson
-
-    except Exception as e:
-        stop_time = time.time()
-        rawjson['t']  = round((stop_time - start_time), 3)
-        print(e.args[0])
-        return None
 
 def get_xbtceusd():
     start_time = time.time()
@@ -229,6 +314,26 @@ def get_xbtceusd():
 
     try:
         response = urlopen.urlopen(request, timeout=2)
+
+    except urllib.error.HTTPError as e:
+        print('xbtceusd: ' + str(e.code))
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except urllib.error.URLError as e:
+        print('xbtceusd: URLError')
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except Exception as e:
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        print('xbtceusd: ' + e.args[0])
+        return rawjson
+
+    else:
         r = json.loads(gzip.decompress(response.read()).decode('utf-8'))[0]
         stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
@@ -241,12 +346,6 @@ def get_xbtceusd():
 
                     return rawjson
 
-    except Exception as e:
-        stop_time = time.time()
-        rawjson['t']  = round((stop_time - start_time), 3)
-        print(e.args[0])
-        return None
-
 def get_yobit():
     start_time = time.time()
     url = 'https://yobit.net/api/2/dash_btc/ticker'
@@ -258,6 +357,26 @@ def get_yobit():
 
     try:
         response = urlopen.urlopen(request, timeout=2)
+
+    except urllib.error.HTTPError as e:
+        print('yobit: ' + str(e.code))
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except urllib.error.URLError as e:
+        print('yobit: URLError')
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except Exception as e:
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        print('yobit: ' + e.args[0])
+        return rawjson
+
+    else:
         r = json.loads(response.read().decode('utf-8'))
         stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
@@ -269,18 +388,12 @@ def get_yobit():
 
                 return rawjson
 
-    except Exception as e:
-        stop_time = time.time()
-        rawjson['t']  = round((stop_time - start_time), 3)
-        print(e.args[0])
-        return None
-
-
 #
 def check_redis():
     s = redis.StrictRedis(host='192.168.10.3', port=26379, socket_timeout=0.1)
     try:
         h = s.execute_command("SENTINEL get-master-addr-by-name mymaster")[0].decode("utf-8")
+        print(h)
         if h == '192.168.10.2':
             print('2 is master')
             sys.exit()
@@ -381,4 +494,3 @@ except Exception as e:
 
 except KeyboardInterrupt:
     sys.exit()
-

@@ -12,16 +12,17 @@ import time
 from bs4 import BeautifulSoup
 import socket
 import urllib.request as urlopen
+import urllib.error
 import gzip
 from statistics import mean
 from ISStreamer.Streamer import Streamer
 
-#	https://api.bitfinex.com/v1/pubticker/BTCUSD
-#	https://api.gdax.com/products/BTC-USD/ticker
-#	https://btc-e.com/api/3/ticker/btc_usd
-#	https://cryptottlivewebapi.xbtce.net:8443/api/v1/public/ticker/BTCUSD
-#	https://www.bitstamp.net/api/v2/ticker_hour/btcusd/
-#	https://www.okcoin.com/api/v1/ticker.do?symbol=btc_usd
+#   https://api.bitfinex.com/v1/pubticker/BTCUSD
+#   https://api.gdax.com/products/BTC-USD/ticker
+#   https://btc-e.com/api/3/ticker/btc_usd
+#   https://cryptottlivewebapi.xbtce.net:8443/api/v1/public/ticker/BTCUSD
+#   https://www.bitstamp.net/api/v2/ticker_hour/btcusd/
+#   https://www.okcoin.com/api/v1/ticker.do?symbol=btc_usd
 
 
 USERAGET = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0.1 Safari/602.2.14'
@@ -45,8 +46,27 @@ def get_bitfinex():
 
     try:
         response = urlopen.urlopen(request, timeout=2)
+
+    except urllib.error.HTTPError as e:
+        print('bitfinex: ' + str(e.code))
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+        
+    except urllib.error.URLError as e:
+        print('bitfinex: URLError')
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson        
+
+    except Exception as e:
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        print('bitfinex: ' + e.args[0])
+        return rawjson
+    
+    else:
         r = json.loads(response.read().decode('utf-8'))
-#        print(json.dumps(r, sort_keys=True, indent=4, separators=(',', ': ')))
         stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
@@ -56,13 +76,6 @@ def get_bitfinex():
                 rawjson['vusd'] = valusd
 
         return rawjson
-
-    except Exception as e:
-        stop_time = time.time()
-        rawjson['t']  = round((stop_time - start_time), 3)
-        print(e.args[0])
-        return rawjson
-
 
 def get_gdax():
     start_time = time.time()
@@ -75,8 +88,27 @@ def get_gdax():
 
     try:
         response = urlopen.urlopen(request, timeout=2)
+
+    except urllib.error.HTTPError as e:
+        print('gdax: ' + str(e.code))
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except urllib.error.URLError as e:
+        print('gdax: URLError')
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except Exception as e:
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        print('gdax: ' + e.args[0])
+        return rawjson
+
+    else:
         r = json.loads(response.read().decode('utf-8'))
-#        print(json.dumps(r, sort_keys=True, indent=4, separators=(',', ': ')))
         stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
@@ -86,13 +118,6 @@ def get_gdax():
                 rawjson['vusd'] = valusd
 
         return rawjson
-
-    except Exception as e:
-        stop_time = time.time()
-        rawjson['t']  = round((stop_time - start_time), 3)
-        print(e.args[0])
-        return rawjson
-
 
 def get_btce():
     start_time = time.time()
@@ -105,8 +130,27 @@ def get_btce():
 
     try:
         response = urlopen.urlopen(request, timeout=2)
+
+    except urllib.error.HTTPError as e:
+        print('btce: ' + str(e.code))
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except urllib.error.URLError as e:
+        print('btce: URLError')
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except Exception as e:
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        print('btce: ' + e.args[0])
+        return rawjson
+
+    else:
         r = json.loads(response.read().decode('utf-8'))
-#        print(json.dumps(r, sort_keys=True, indent=4, separators=(',', ': ')))
         stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
@@ -116,13 +160,6 @@ def get_btce():
                 rawjson['vusd'] = valusd
 
         return rawjson
-
-    except Exception as e:
-        stop_time = time.time()
-        rawjson['t']  = round((stop_time - start_time), 3)
-        print(e.args[0])
-        return rawjson
-
 
 def get_xbtce():
     start_time = time.time()
@@ -136,8 +173,27 @@ def get_xbtce():
 
     try:
         response = urlopen.urlopen(request, timeout=2)
+
+    except urllib.error.HTTPError as e:
+        print('xbtce: ' + str(e.code))
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except urllib.error.URLError as e:
+        print('xbtce: URLError')
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except Exception as e:
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        print('xbtce: ' + e.args[0])
+        return rawjson
+
+    else:
         r = json.loads(gzip.decompress(response.read()).decode('utf-8'))[0]
-#        print(json.dumps(r, sort_keys=True, indent=4, separators=(',', ': ')))
         stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
@@ -147,12 +203,6 @@ def get_xbtce():
                 if valbtc > 0:
                     rawjson['vusd'] = valbtc
 
-        return rawjson
-
-    except Exception as e:
-        stop_time = time.time()
-        rawjson['t']  = round((stop_time - start_time), 3)
-        print(e.args[0])
         return rawjson
 
 
@@ -167,8 +217,28 @@ def get_bitstamp():
 
     try:
         response = urlopen.urlopen(request, timeout=2)
+
+    except urllib.error.HTTPError as e:
+        print('bitstamp: ' + str(e.code))
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except urllib.error.URLError as e:
+        print('bitstamp: URLError')
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except Exception as e:
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        print('bitstamp: ' + e.args[0])
+        return rawjson
+
+    else:
+
         r = json.loads(response.read().decode('utf-8'))
-#        print(json.dumps(r, sort_keys=True, indent=4, separators=(',', ': ')))
         stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
@@ -179,11 +249,6 @@ def get_bitstamp():
 
         return rawjson
 
-    except Exception as e:
-        stop_time = time.time()
-        rawjson['t']  = round((stop_time - start_time), 3)
-        print(e.args[0])
-        return rawjson
 
 def get_okcoin():
     start_time = time.time()
@@ -196,8 +261,28 @@ def get_okcoin():
 
     try:
         response = urlopen.urlopen(request, timeout=2)
+
+    except urllib.error.HTTPError as e:
+        print('okcoin: ' + str(e.code))
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except urllib.error.URLError as e:
+        print('okcoin: URLError')
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        return rawjson
+
+    except Exception as e:
+        stop_time = time.time()
+        rawjson['t']  = round((stop_time - start_time), 3)
+        print('okcoin: ' + e.args[0])
+        return rawjson
+
+    else:
+
         r = json.loads(response.read().decode('utf-8'))
-#        print(json.dumps(r, sort_keys=True, indent=4, separators=(',', ': ')))
         stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
@@ -208,18 +293,12 @@ def get_okcoin():
 
         return rawjson
 
-    except Exception as e:
-        stop_time = time.time()
-        rawjson['t']  = round((stop_time - start_time), 3)
-        print(e.args[0])
-        return rawjson
-
-
 #
 def check_redis():
     s = redis.StrictRedis(host='192.168.10.3', port=26379, socket_timeout=0.1)
     try:
         h = s.execute_command("SENTINEL get-master-addr-by-name mymaster")[0].decode("utf-8")
+        print(h)
         if h == '192.168.10.2':
             print('2 is master')
             sys.exit()
@@ -271,6 +350,7 @@ try:
     btcusd['avg'] = round(mean(sorted(l_btcusd)[1:-1]), 2)
     btcusd['tstamp'] = epoch00    
 
+
     # redis
     try:
         pipe = r.pipeline()
@@ -297,4 +377,3 @@ except Exception as e:
 
 except KeyboardInterrupt:
     sys.exit()
-
