@@ -30,6 +30,14 @@ pp = pprint.PrettyPrinter(indent=4)
 #r.flushdb()
 #sys.exit()
 
+def check_redis():
+    s = redis.StrictRedis(host='192.168.10.4', port=26379, socket_timeout=0.1)
+    h = s.execute_command("SENTINEL get-master-addr-by-name mymaster")[0].decode("utf-8")
+#    if h == '192.168.10.1':
+#        sys.exit()    
+
+check_redis()
+
 try:
 
 #

@@ -16,12 +16,12 @@ import gzip
 from statistics import mean
 from ISStreamer.Streamer import Streamer
 
-#   https://api.bitfinex.com/v1/pubticker/BTCUSD
-#   https://api.gdax.com/products/BTC-USD/ticker
-#   https://btc-e.com/api/3/ticker/btc_usd
-#   https://cryptottlivewebapi.xbtce.net:8443/api/v1/public/ticker/BTCUSD
-#   https://www.bitstamp.net/api/v2/ticker_hour/btcusd/
-#   https://www.okcoin.com/api/v1/ticker.do?symbol=btc_usd
+#	https://api.bitfinex.com/v1/pubticker/BTCUSD
+#	https://api.gdax.com/products/BTC-USD/ticker
+#	https://btc-e.com/api/3/ticker/btc_usd
+#	https://cryptottlivewebapi.xbtce.net:8443/api/v1/public/ticker/BTCUSD
+#	https://www.bitstamp.net/api/v2/ticker_hour/btcusd/
+#	https://www.okcoin.com/api/v1/ticker.do?symbol=btc_usd
 
 
 USERAGET = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0.1 Safari/602.2.14'
@@ -215,6 +215,25 @@ def get_okcoin():
         return rawjson
 
 
+#
+def check_redis():
+    s = redis.StrictRedis(host='192.168.10.3', port=26379, socket_timeout=0.1)
+    try:
+        h = s.execute_command("SENTINEL get-master-addr-by-name mymaster")[0].decode("utf-8")
+        if h == '192.168.10.2':
+            print('2 is master')
+            sys.exit()
+
+        else:
+            pass
+
+    except Exception as e:
+        print(e.args[0])
+        sys.exit()
+
+
+check_redis()
+
 # main
 btcusd = {}
 now = datetime.now()
@@ -253,15 +272,25 @@ try:
     btcusd['tstamp'] = epoch00    
 
     # redis
-    pipe = r.pipeline()
-    pipe.zadd(r_SS_BTC_PRICE, epoch00, str(epoch00) + ':' + str(btcusd['avg']))
-    pipe.set(r_KEY_BTC_PRICE, json.dumps(btcusd))
-    response = pipe.execute()
+    try:
+        pipe = r.pipeline()
+        pipe.zadd(r_SS_BTC_PRICE, epoch00, str(epoch00) + ':' + str(btcusd['avg']))
+        pipe.set(r_KEY_BTC_PRICE, json.dumps(btcusd, sort_keys=True))
+        response = pipe.execute()
+
+    except Exception as e:
+        print(e.args[0])
+        pass
 
     # ISS
-    streamer = Streamer(bucket_name='ticker', bucket_key='5YS94TRX3T7V', access_key='4V4zdLdXD1wA7P2gZ8AatkIiouP6WK77', buffer_size=50)
-    streamer.log_object_no_ub(btcusd, key_prefix="btcusd_", epoch=epoch00)
-    streamer.close()
+    try:
+        streamer = Streamer(bucket_name='ticker', bucket_key='5YS94TRX3T7V', access_key='4V4zdLdXD1wA7P2gZ8AatkIiouP6WK77', buffer_size=50)
+        streamer.log_object_no_ub(btcusd, key_prefix="btcusd_", epoch=epoch00)
+        streamer.close()
+
+    except Exception as e:
+        print(e.args[0])
+        pass
 
 except Exception as e:
     print(e.args[0])

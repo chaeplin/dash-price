@@ -276,6 +276,26 @@ def get_yobit():
         return None
 
 
+#
+def check_redis():
+    s = redis.StrictRedis(host='192.168.10.3', port=26379, socket_timeout=0.1)
+    try:
+        h = s.execute_command("SENTINEL get-master-addr-by-name mymaster")[0].decode("utf-8")
+        if h == '192.168.10.2':
+            print('2 is master')
+            sys.exit()
+
+        else:
+            pass
+
+    except Exception as e:
+        print(e.args[0])
+        sys.exit()
+
+
+check_redis()
+
+
 # main
 dashbtc = {}
 dashusd = {}
@@ -332,18 +352,28 @@ try:
     dashbtc['tstamp'] = dashusd['tstamp'] = epoch00
 
     # redis
-    pipe = r.pipeline()
-    pipe.set(r_KEY_DASH_BTC_PRICE, json.dumps(dashbtc))
-    pipe.set(r_KEY_DASH_USD_PRICE, json.dumps(dashusd))
-    pipe.zadd(r_SS_DASH_BTC_PRICE, epoch00, str(epoch00) + ':' + str(dashbtc['avg']))
-    pipe.zadd(r_SS_DASH_USD_PRICE, epoch00, str(epoch00) + ':' + str(dashusd['avg']))
-    response = pipe.execute()
+    try:
+        pipe = r.pipeline()
+        pipe.set(r_KEY_DASH_BTC_PRICE, json.dumps(dashbtc, sort_keys=True))
+        pipe.set(r_KEY_DASH_USD_PRICE, json.dumps(dashusd, sort_keys=True))
+        pipe.zadd(r_SS_DASH_BTC_PRICE, epoch00, str(epoch00) + ':' + str(dashbtc['avg']))
+        pipe.zadd(r_SS_DASH_USD_PRICE, epoch00, str(epoch00) + ':' + str(dashusd['avg']))
+        response = pipe.execute()
+
+    except Exception as e:
+        print(e.args[0])
+        pass
 
     # ISS
-    streamer = Streamer(bucket_name='ticker', bucket_key='5YS94TRX3T7V', access_key='4V4zdLdXD1wA7P2gZ8AatkIiouP6WK77', buffer_size=50)
-    streamer.log_object_no_ub(dashbtc, key_prefix="dashbtc_", epoch=epoch00)
-    streamer.log_object_no_ub(dashusd, key_prefix="dashusd_", epoch=epoch00)
-    streamer.close()
+    try:
+        streamer = Streamer(bucket_name='ticker', bucket_key='5YS94TRX3T7V', access_key='4V4zdLdXD1wA7P2gZ8AatkIiouP6WK77', buffer_size=50)
+        streamer.log_object_no_ub(dashbtc, key_prefix="dashbtc_", epoch=epoch00)
+        streamer.log_object_no_ub(dashusd, key_prefix="dashusd_", epoch=epoch00)
+        streamer.close()
+
+    except Exception as e:
+        print(e.args[0])
+        pass
 
 except Exception as e:
     print(e.args[0])
