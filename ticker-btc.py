@@ -17,6 +17,8 @@ import gzip
 from statistics import mean
 from ISStreamer.Streamer import Streamer
 
+from twython import Twython, TwythonError
+
 #   https://api.bitfinex.com/v1/pubticker/BTCUSD
 #   https://api.gdax.com/products/BTC-USD/ticker
 #   https://btc-e.com/api/3/ticker/btc_usd
@@ -24,6 +26,7 @@ from ISStreamer.Streamer import Streamer
 #   https://www.bitstamp.net/api/v2/ticker_hour/btcusd/
 #   https://www.okcoin.com/api/v1/ticker.do?symbol=btc_usd
 
+twitter = Twython(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
 
 USERAGET = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0.1 Safari/602.2.14'
 
@@ -310,7 +313,13 @@ def check_redis():
         print(e.args[0])
         sys.exit()
 
+def check_update():
+    cur_time = time.time()
+    lastupdate = json.loads(r.get(r_KEY_BTC_PRICE))['tstamp']
+    if cur_time - lastupdate > 270 and cur_time - lastupdate < 330:
+        twitter.update_status(status='ticker btc has prob')
 
+#---------------------------------
 check_redis()
 
 # main
@@ -318,6 +327,9 @@ btcusd = {}
 now = datetime.now()
 epoch00 = int(time.mktime(now.timetuple())) - now.second
 
+check_update()
+
+#-----
 try:
     bitfinex = get_bitfinex()
     if bitfinex and bitfinex['vusd'] > 0:

@@ -17,6 +17,8 @@ import gzip
 from statistics import mean
 from ISStreamer.Streamer import Streamer
 
+from twython import Twython, TwythonError
+
 #   https://poloniex.com/public?command=returnTicker
 #   https://api.exmo.com/v1/ticker/
 #   https://bittrex.com/api/v1.1/public/getticker?market=btc-dash
@@ -24,6 +26,8 @@ from ISStreamer.Streamer import Streamer
 #   https://btc-e.com/api/3/ticker/dsh_usd
 #   https://cryptottlivewebapi.xbtce.net:8443/api/v1/public/ticker/DSHBTC
 #   https://yobit.net/api/2/dash_btc/ticker
+
+twitter = Twython(APP_KEY, APP_SECRET, OAUTH_TOKEN, OAUTH_TOKEN_SECRET)
 
 USERAGET = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/602.2.14 (KHTML, like Gecko) Version/10.0.1 Safari/602.2.14'
 
@@ -121,14 +125,15 @@ def get_exmo():
         stop_time = time.time()
         rawjson['t']  = round((stop_time - start_time), 3)
 
-        if r and 'last_trade' in r['DASH_BTC'] and 'last_trade' in r['DASH_USD']:
-            valbtc = round(float(r['DASH_BTC']['last_trade']), 5)
-            valusd = round(float(r['DASH_USD']['last_trade']), 2)
-            if valbtc > 0 and valusd > 0:
-                rawjson['vbtc'] = valbtc
-                rawjson['vusd'] = valusd
+        if r and 'DASH_BTC' in r and 'DASH_USD' in r:
+            if 'last_trade' in r['DASH_BTC'] and 'last_trade' in r['DASH_USD']:
+                valbtc = round(float(r['DASH_BTC']['last_trade']), 5)
+                valusd = round(float(r['DASH_USD']['last_trade']), 2)
+                if valbtc > 0 and valusd > 0:
+                    rawjson['vbtc'] = valbtc
+                    rawjson['vusd'] = valusd
 
-                return rawjson
+                    return rawjson
 
 def get_bittrex():
     start_time = time.time()
@@ -406,6 +411,7 @@ def check_redis():
         sys.exit()
 
 
+#---------------------------------
 check_redis()
 
 
@@ -415,6 +421,9 @@ dashusd = {}
 now = datetime.now()
 epoch00 = int(time.mktime(now.timetuple())) - now.second
 
+check_update()
+
+#------
 try:
 
     poloniex = get_poloniex()
