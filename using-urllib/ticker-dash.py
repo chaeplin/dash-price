@@ -488,7 +488,7 @@ try:
 
     # ISS
     try:
-        streamer = Streamer(bucket_name='ticker', bucket_key='5YS94TRX3T7V', access_key='4V4zdLdXD1wA7P2gZ8AatkIiouP6WK77', buffer_size=50)
+        streamer = Streamer(bucket_name='ticker', bucket_key='xxxxx', access_key='xxxxxx', buffer_size=50)
         streamer.log_object_no_ub(dashbtc, key_prefix="dashbtc_", epoch=epoch00)
         streamer.log_object_no_ub(dashusd, key_prefix="dashusd_", epoch=epoch00)
         streamer.close()
