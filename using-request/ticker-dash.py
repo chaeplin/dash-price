@@ -1,3 +1,4 @@
+coind@test-01:~/ticker $ cat ./ticker-dash.py 
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
@@ -18,7 +19,7 @@ def make_request(URL, CHECK_STRRING):
 
     try:
         response = requests.get(URL, headers=headers, timeout=(2,5))
-        if response.status_code == requests.codes.ok:
+        if response.status_code == requests.codes.ok and len(response.text) > 2:
             if isinstance(response.json(), list):
                 if CHECK_STRRING in response.json()[0]:
                     return response.json()[0]
@@ -128,6 +129,26 @@ def get_yobit():
             dashbtc[exsymbol] = valbtc    
 
 
+def get_livecoinbtc():
+    URL           = 'https://api.livecoin.net/exchange/ticker?currencyPair=DASH/BTC'
+    CHECK_STRRING = 'last'
+    exsymbol      = 'livecoin'
+    rawjson       = make_request(URL, CHECK_STRRING)
+    if rawjson:
+        valbtc = round(float(rawjson[CHECK_STRRING]), 5)
+        if valbtc > 0:
+            dashbtc[exsymbol] = valbtc
+
+def get_livecoinusd():
+    URL           = 'https://api.livecoin.net/exchange/ticker?currencyPair=DASH/USD'
+    CHECK_STRRING = 'last'
+    exsymbol      = 'livecoin'
+    rawjson       = make_request(URL, CHECK_STRRING)
+    if rawjson:
+        valusd = round(float(rawjson[CHECK_STRRING]), 2)
+        if valusd > 0:
+            dashusd[exsymbol] = valusd
+
 #-----------
 def check_redis():
     s = redis.StrictRedis(host=SETINEL_HOST, port=26379, socket_timeout=0.1)
@@ -149,8 +170,12 @@ def check_redis():
 def check_update():
     cur_time = time.time()
     lastupdate = json.loads(r.get(r_KEY_DASH_BTC_PRICE))['tstamp']
+
     if cur_time - lastupdate > 270 and cur_time - lastupdate < 330:
-        twitter.update_status(status='ticker btc has prob')
+        twitter.update_status(status='ticker dash has prob -1')
+
+    if cur_time - lastupdate > 570 and cur_time - lastupdate < 630:
+        twitter.update_status(status='ticker dash has prob -2')
 
 #--------------
 key_prefix = 'TICKER:'
@@ -172,8 +197,8 @@ REDIS_MASTER = '192.168.10.2'
 
 # ISS
 ISS_BUCKET_NAME = 'ticker'
-ISS_BUCKET_KEY  = 'xxxxxx'
-ISS_BUCKET_AKEY = 'xxxxx'
+ISS_BUCKET_KEY  = 'xxxx'
+ISS_BUCKET_AKEY = 'xxxx'
 ISS_PREFIX_BTC  = 'dashbtc'
 ISS_PREFIX_USD  = 'dashusd'
 
@@ -214,6 +239,8 @@ try:
     get_xbtcebtc()
     get_xbtceusd()
     get_yobit()
+    get_livecoinbtc()
+    get_livecoinusd()
 
     l_dashbtc = []
     for key in dashbtc:

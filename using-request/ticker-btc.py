@@ -18,7 +18,7 @@ def make_request(URL, CHECK_STRRING):
 
     try:
         response = requests.get(URL, headers=headers, timeout=(2,5))
-        if response.status_code == requests.codes.ok:
+        if response.status_code == requests.codes.ok and len(response.text) > 2:
             if isinstance(response.json(), list):
                 if CHECK_STRRING in response.json()[0]:
                     return response.json()[0]
@@ -111,8 +111,12 @@ def check_redis():
 def check_update():
     cur_time = time.time()
     lastupdate = json.loads(r.get(r_KEY_BTC_PRICE))['tstamp']
+
     if cur_time - lastupdate > 270 and cur_time - lastupdate < 330:
-        twitter.update_status(status='ticker btc has prob')
+        twitter.update_status(status='ticker btc has prob - 1')
+
+    if cur_time - lastupdate > 570 and cur_time - lastupdate < 630:
+        twitter.update_status(status='ticker btc has prob - 2')
 
 #---------------------------------
 key_prefix = 'TICKER:'
@@ -131,8 +135,8 @@ REDIS_MASTER = '192.168.10.2'
 
 # ISS
 ISS_BUCKET_NAME = 'ticker'
-ISS_BUCKET_KEY  = 'xxxxxx'
-ISS_BUCKET_AKEY = 'xxxxx'
+ISS_BUCKET_KEY  = 'xxxx'
+ISS_BUCKET_AKEY = 'xxxx'
 ISS_PREFIX      = 'btcusd'
 
 streamer = Streamer(bucket_name=ISS_BUCKET_NAME, bucket_key=ISS_BUCKET_KEY, access_key=ISS_BUCKET_AKEY, buffer_size=50)
