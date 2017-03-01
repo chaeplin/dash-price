@@ -86,6 +86,8 @@ try:
                 "usd": dash_usd_day
                 }
 
+
+#        print(epoch_dash,dash_btc_day,dash_usd_day)
     with open(file_dash_btc_usd, 'w') as fp:
         json.dump(dash_btc_usd, fp)
 
